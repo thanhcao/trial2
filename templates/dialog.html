@@ -1,0 +1,15 @@
+<md-dialog aria-label="Mango (Fruit)">
+  <ng-include src="'templates/crop.html'"></ng-include>
+  <div class="md-actions" layout="row">
+    <md-button href="http://en.wikipedia.org/wiki/Mango" target="_blank" hide show-md>
+      More on Wikipedia
+    </md-button>
+    <span flex></span>
+    <md-button ng-click="answer('not useful')">
+      Cancel
+    </md-button>
+    <md-button ng-click="answer('useful')" class="md-primary">
+      Submit
+    </md-button>
+  </div>
+</md-dialog>

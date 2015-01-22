@@ -1,0 +1,181 @@
+<html ng-app="cropProject">
+  <head>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/angular_material/0.6.1/angular-material.min.css"></link>
+     <script src="//cdn.jsdelivr.net/hammerjs/2.0.4/hammer.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular-animate.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular-aria.min.js"></script>
+
+    <!-- Angular Material Javascript now available via Google CDN; version 0.6 used here -->
+    <script src="//ajax.googleapis.com/ajax/libs/angular_material/0.6.1/angular-material.min.js"></script>
+    <style>
+    md-dialog{
+      text-align:center;
+      height: 100%;
+      margin:0px;
+      max-width:100%;
+      max-height:100%;
+      width:100%;
+      @media screen and (min-width: 1200px){
+        width: 50% !important;
+      }
+      @media screen and (min-width: 992px) and (max-width: 1200px){
+        width: 60% !important;
+      }
+      @media screen and (min-width: 768px) and (max-width: 991px){
+        width: 80% !important;
+      }
+      @media screen and (max-width: 767px) {
+        width: 100% !important;
+      }
+    }
+
+    </style>
+    <script>
+    var app = angular.module('cropProject', ['ngMaterial']);
+    app.directive('hello', function () {
+        return {
+            restrict: 'E', //E = element, A = attribute, C = class, M = comment         
+            scope: {
+                //@ reads the attribute value, = provides two-way binding, & works with functions
+                title: '@'         
+            },
+            template: '<button>Hello</button>',
+            link: function ($scope, element, attrs) {
+              element.bind('click', function () {
+                  console.log("$scope ",$scope)
+                  console.log("$element ",element)
+                  console.log("$attrs ",attrs)
+                  alert('You clicked me!');
+              });
+            }
+        }
+    });
+
+    app.directive('crop', function () {
+        return {
+            restrict: 'E', //E = element, A = attribute, C = class, M = comment         
+            scope: {
+                //@ reads the attribute value, = provides two-way binding, & works with functions
+                title: '@'         
+            },
+            templateUrl: "templates/crop.html",
+            link: function ($scope, element, attrs) {
+              element.bind('click', function () {
+                  console.log("$scope ",$scope)
+                  console.log("$element ",element)
+                  console.log("$attrs ",attrs)
+                  alert('You clicked me!');
+              });
+            }
+        }
+    });
+
+    app.directive('pinch', function () {
+      return function (scope, element, attrs) {
+        var myElement = element[0];
+        var hammertime = new Hammer(myElement);
+        hammertime.get('pinch').set({ enable: true });
+        var deltaX = null;
+        var deltaY = null;
+        hammertime.on('pinchin', function(ev) {
+          //var img = myElement.childNodes[1];
+          //myElement.textContent = ev.type +" gesture detected. Pinch In";
+          return scope.$apply(function( ){
+            if(!deltaX){
+              deltaX = ev.deltaX;
+            }
+            if(!deltaY){
+              deltaY = ev.deltaY;              
+            }
+            if(deltaX != ev.deltaX){
+              deltaX = ev.deltaX;
+              img.width -= 10;
+            }
+            if(deltaY != ev.deltaY){
+              deltaY = ev.deltaY;
+              img.height -= 10;
+            }
+          })
+        });
+
+        hammertime.on('pinchout', function(ev) {
+          var img = myElement.childNodes[1];
+          console.log("img ",scope.img)
+          //myElement.textContent = ev.type +" gesture detected. Pinch In";
+          return scope.$apply(function( ){
+            if(!deltaX){
+              deltaX = ev.deltaX;
+            }
+            if(!deltaY){
+              deltaY = ev.deltaY;              
+            }
+            if(deltaX != ev.deltaX){
+              deltaX = ev.deltaX;
+              img.width += 10;
+            }
+            if(deltaY != ev.deltaY){
+              deltaY = ev.deltaY;
+              img.height += 10;
+            }
+          })
+        });
+
+      };
+    });
+
+    function DialogController($scope, $mdDialog) {
+      $scope.divWidth = window.innerWidth + "px";   
+      $scope.divHeight = (window.innerWidth *2/3) + "px";   
+      $scope.imgWidth = 500;
+      $scope.imgHeight = 500;
+      $scope.hide = function() {
+        $mdDialog.hide();
+      };
+      $scope.cancel = function() {
+        $mdDialog.cancel();
+      };
+      $scope.answer = function(answer) {
+        $mdDialog.hide(answer);
+      };
+      $scope.zoom = function(img){
+        console.log("zoom ",img);
+      }
+      $scope.zoomIn = function(){
+        $scope.imgWidth += 10;
+        $scope.imgHeight += 10;        
+      }
+
+      $scope.zoomOut = function(){
+        $scope.imgWidth -= 10;
+        $scope.imgHeight -= 10;        
+      }
+    }
+
+    app.controller('mainController', function ($scope,$mdDialog) {
+       $scope.showAdvanced = function(ev) {
+          $mdDialog.show({
+            controller: DialogController,
+            templateUrl: 'templates/dialog.html',
+            targetEvent: ev,
+          })
+          .then(function(answer) {
+            $scope.alert = 'You said the information was "' + answer + '".';
+          }, function() {
+            $scope.alert = 'You cancelled the dialog.';
+          });
+        };
+    });
+    </script>
+  </head>
+  <body>
+    Hello {{ 1 + 1}}
+    <hello good="yes"></hello>
+    <div ng-controller="mainController">
+      <md-button class="md-primary" ng-click="showAdvanced($event)">
+        Alert Dialog
+      </md-button>
+    </div>
+  </body>
+</html>
